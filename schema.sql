@@ -1,0 +1,47 @@
+CREATE TABLE admins (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(190) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE products (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(190) NOT NULL,
+  slug VARCHAR(220) NOT NULL UNIQUE,
+  description TEXT NULL,
+  price DECIMAL(12,2) NOT NULL,
+  stock INT UNSIGNED NOT NULL DEFAULT 0,
+  image_url VARCHAR(1000) NULL,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_products_active (is_active, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE orders (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  order_number VARCHAR(32) NOT NULL UNIQUE,
+  customer_name VARCHAR(150) NOT NULL,
+  phone VARCHAR(30) NOT NULL,
+  address TEXT NOT NULL,
+  note TEXT NULL,
+  subtotal DECIMAL(12,2) NOT NULL,
+  payment_method VARCHAR(30) NOT NULL DEFAULT 'cod',
+  payment_status VARCHAR(30) NOT NULL DEFAULT 'unpaid',
+  order_status VARCHAR(30) NOT NULL DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_orders_created (created_at),
+  INDEX idx_orders_status (order_status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE order_items (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  order_id BIGINT UNSIGNED NOT NULL,
+  product_id BIGINT UNSIGNED NULL,
+  product_name VARCHAR(190) NOT NULL,
+  unit_price DECIMAL(12,2) NOT NULL,
+  quantity INT UNSIGNED NOT NULL,
+  FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
